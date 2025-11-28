@@ -2,7 +2,9 @@ import Foundation
 import Observation
 import AVFoundation
 import MediaPlayer
+import UIKit
 import HData
+import HConstants
 
 @Observable
 @MainActor
@@ -16,22 +18,35 @@ public class AudioPlayerModel {
 
     private var player: AVPlayer?
     private var timeObserver: Any?
+    
+    private let lastPlayedChapterTitleKey = "LastPlayedChapterTitle"
+    private let lastPlayedTimeKey = "LastPlayedTime"
 
     private init() {
         setupRemoteCommands()
         setupAudioSession()
+        restoreState()
+        
+        NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.saveState()
+            }
+        }
     }
 
     @MainActor
-    public func play(chapter: Chapter) {
+    public func play(chapter: Chapter, autoPlay: Bool = true) {
         // If it's the same chapter and we are paused, just resume
         if currentChapter?.title == chapter.title, let player = player {
-            player.play()
-            isPlaying = true
+            if autoPlay {
+                player.play()
+                isPlaying = true
+            }
             return
         }
 
         currentChapter = chapter
+        currentTime = 0
         
         // Check for local file
         let url: URL
@@ -54,8 +69,12 @@ public class AudioPlayerModel {
         }
 
         player = AVPlayer(playerItem: playerItem)
-        player?.play()
-        isPlaying = true
+        if autoPlay {
+            player?.play()
+            isPlaying = true
+        } else {
+            isPlaying = false
+        }
 
         // Observe duration
         Task {
@@ -75,6 +94,7 @@ public class AudioPlayerModel {
         }
         
         updateNowPlayingInfo()
+        saveState()
     }
 
     public func togglePlayPause() {
@@ -82,6 +102,7 @@ public class AudioPlayerModel {
         
         if isPlaying {
             player.pause()
+            saveState()
         } else {
             player.play()
         }
@@ -142,5 +163,20 @@ public class AudioPlayerModel {
         nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    }
+    
+    private func saveState() {
+        guard let chapter = currentChapter else { return }
+        HPersistence.shared.set(chapter.title, forKey: lastPlayedChapterTitleKey)
+        HPersistence.shared.set(currentTime, forKey: lastPlayedTimeKey)
+    }
+    
+    private func restoreState() {
+        guard let title = HPersistence.shared.string(forKey: lastPlayedChapterTitleKey),
+              let chapter = Chapter.all.first(where: { $0.title == title }) else { return }
+        
+        let time = HPersistence.shared.double(forKey: lastPlayedTimeKey)
+        play(chapter: chapter, autoPlay: false)
+        seek(to: time)
     }
 }
