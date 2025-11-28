@@ -38,6 +38,7 @@
 		60585DCC2ED962BA00A3A4D1 /* Exceptions for "Ye-Dufu" folder in "Ye-Dufu" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				HData,
 				Info.plist,
 			);
 			target = 60585DA32ED962B900A3A4D1 /* Ye-Dufu */;
