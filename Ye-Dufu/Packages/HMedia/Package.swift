@@ -14,7 +14,8 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(path: "../HData")
+        .package(path: "../HData"),
+        .package(path: "../HConstants")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -22,7 +23,8 @@ let package = Package(
         .target(
             name: "HMedia",
             dependencies: [
-                .product(name: "HData", package: "HData")
+                .product(name: "HData", package: "HData"),
+                .product(name: "HConstants", package: "HConstants")
             ]
         ),
         .testTarget(
