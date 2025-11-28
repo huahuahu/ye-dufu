@@ -5,4 +5,9 @@ The project file is in the Ye-Dufu folder.
 The minimum iOS deployment target is iOS 26. I want to use the new Observable pattern introduced in iOS 26 for UIKit.
 
 
+Use modern Swift syntax and best practices.
+- use `async/await` for asynchronous operations.
+- use structured concurrency where applicable.
 
+
+When building project, use xcodebuild command and iPhone 17 pro simulator as the target device.

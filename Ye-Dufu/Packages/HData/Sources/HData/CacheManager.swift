@@ -1,7 +1,7 @@
 import Foundation
 
 public class CacheManager {
-    public static let shared = CacheManager()
+    @MainActor public static let shared = CacheManager()
     
     private let fileManager = FileManager.default
     private let cacheDirectory: URL
