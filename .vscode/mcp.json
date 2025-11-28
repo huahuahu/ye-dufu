@@ -1,0 +1,21 @@
+{
+	"servers": {
+		"apple-docs": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@kimsungwhee/apple-docs-mcp"
+			],
+			"type": "stdio"
+		},
+
+		"github": {
+			"type": "http",
+			"url": "https://api.githubcopilot.com/mcp",
+			"headers": {
+				"X-MCP-Toolsets": "issues,pull_requests,repos,users"
+			}
+		}
+	},
+	"inputs": []
+}
