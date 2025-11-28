@@ -8,6 +8,8 @@
 *   **Keys**:
     *   `"LastPlayedChapterTitle"` (String)
     *   `"LastPlayedTime"` (Double)
+* API
+    Add a wrapper in HConstant package
 
 ## Integration with AudioPlayerModel
 
