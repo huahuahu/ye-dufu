@@ -28,6 +28,10 @@ public class CacheManager {
         }
         return nil
     }
+
+    public func getLocalURL(for resource: AudioResource) -> URL? {
+        return getLocalURL(for: resource.url)
+    }
     
     public func cache(remoteURL: URL) {
         let fileName = remoteURL.lastPathComponent
@@ -59,5 +63,9 @@ public class CacheManager {
             }
         }
         task.resume()
+    }
+
+    public func cache(resource: AudioResource) {
+        cache(remoteURL: resource.url)
     }
 }
