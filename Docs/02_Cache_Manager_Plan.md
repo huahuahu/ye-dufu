@@ -5,14 +5,14 @@
 ## Class Design
 
 *   **Name**: `CacheManager`
-*   **Location**: `Packages/HMedia/Sources/HMedia/CacheManager.swift`
+*   **Location**: `Packages/HData/Sources/`
 *   **Type**: Singleton (`shared` instance)
 
 ## Functionality
 
 1.  **Directory Management**
     *   Use `FileManager.default`.
-    *   Target directory: `Library/Caches` (appropriate for re-downloadable content).
+    *   Target directory: `Documents/Media`
 
 2.  **File Naming Strategy**
     *   Use the `lastPathComponent` of the remote URL as the local filename.

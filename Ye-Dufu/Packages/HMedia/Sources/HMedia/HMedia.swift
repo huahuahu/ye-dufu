@@ -2,6 +2,7 @@
 // https://docs.swift.org/swift-book
 
 import Foundation
+import HData
 
 public struct Chapter: Sendable {
     public let title: String
@@ -22,14 +23,6 @@ public extension Chapter {
     static let nine = Chapter(title: "杜甫的一组名诗", audioResource: .nine)
 
     static let all: [Chapter] = [.one, .two, .three, .four, .six, .nine]
-}
-
-public struct AudioResource: Sendable {
-    public let url: URL
-
-    public init(url: URL) {
-        self.url = url
-    }
 }
 
 public extension AudioResource {

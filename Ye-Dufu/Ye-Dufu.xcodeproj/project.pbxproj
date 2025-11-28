@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		60585DDB2ED9645F00A3A4D1 /* HMedia in Frameworks */ = {isa = PBXBuildFile; productRef = 60585DDA2ED9645F00A3A4D1 /* HMedia */; };
+		60585DE32ED9774600A3A4D1 /* HConstants in Frameworks */ = {isa = PBXBuildFile; productRef = 60585DE22ED9774600A3A4D1 /* HConstants */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,6 +33,8 @@
 		60585DBA2ED962BA00A3A4D1 /* Ye-DufuTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Ye-DufuTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		60585DC42ED962BA00A3A4D1 /* Ye-DufuUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Ye-DufuUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		60585DD82ED9644D00A3A4D1 /* HMedia */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = HMedia; path = Packages/HMedia; sourceTree = "<group>"; };
+		60585DDF2ED975E000A3A4D1 /* HConstants */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = HConstants; path = Packages/HConstants; sourceTree = "<group>"; };
+		60585E622ED97C7600A3A4D1 /* HData */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = HData; path = Packages/HData; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -71,6 +74,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				60585DDB2ED9645F00A3A4D1 /* HMedia in Frameworks */,
+				60585DE32ED9774600A3A4D1 /* HConstants in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -94,6 +98,8 @@
 		60585D9B2ED962B900A3A4D1 = {
 			isa = PBXGroup;
 			children = (
+				60585E622ED97C7600A3A4D1 /* HData */,
+				60585DDF2ED975E000A3A4D1 /* HConstants */,
 				60585DD82ED9644D00A3A4D1 /* HMedia */,
 				60585DA62ED962B900A3A4D1 /* Ye-Dufu */,
 				60585DBD2ED962BA00A3A4D1 /* Ye-DufuTests */,
@@ -141,6 +147,7 @@
 			name = "Ye-Dufu";
 			packageProductDependencies = (
 				60585DDA2ED9645F00A3A4D1 /* HMedia */,
+				60585DE22ED9774600A3A4D1 /* HConstants */,
 			);
 			productName = "Ye-Dufu";
 			productReference = 60585DA42ED962B900A3A4D1 /* Ye-Dufu.app */;
@@ -604,6 +611,10 @@
 		60585DDA2ED9645F00A3A4D1 /* HMedia */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = HMedia;
+		};
+		60585DE22ED9774600A3A4D1 /* HConstants */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HConstants;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
