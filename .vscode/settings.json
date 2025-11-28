@@ -1,6 +1,7 @@
 {
     "sweetpad.build.xcodeWorkspacePath": "Ye-Dufu/Ye-Dufu.xcodeproj/project.xcworkspace",
     "chat.tools.terminal.autoApprove": {
+
         "git": true,
         "cd": true,
         "echo": true,
@@ -32,7 +33,8 @@
         "git diff": true,
         "git grep": true,
         "git branch": true,
-        "/^git branch\\b.*-(d|D|m|M|-delete|-force)\\b/": false,
+        "/^git add .*$/": true,
+        "/^git branch\\b.*-(d|D|m|M|-delete|-force)\\b/": true,
         "Get-ChildItem": true,
         "Get-Content": true,
         "Get-Date": true,
