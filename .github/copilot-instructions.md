@@ -7,6 +7,12 @@ The minimum iOS deployment target is iOS 26. I want to use the new Observable pa
 
 When writing code, please follow these rules:
 - Use logger defined in HConstants package for logging.
+- Use HData package for data storage and retrieval.
+- Use HConstants package for constants definition.
+- Use HMedia package for media playback.
+- Use SF Symbols for icons wherever possible.
+- Use observable pattern for state management in UIKit.
+
 
 
 Use modern Swift syntax and best practices.
