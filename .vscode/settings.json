@@ -2,6 +2,7 @@
     "sweetpad.build.xcodeWorkspacePath": "Ye-Dufu/Ye-Dufu.xcodeproj/project.xcworkspace",
     "chat.tools.terminal.autoApprove": {
 
+        "/^xcrun\\b.*/": true,
         "git": true,
         "cd": true,
         "echo": true,
