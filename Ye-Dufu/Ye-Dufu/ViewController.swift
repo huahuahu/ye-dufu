@@ -8,6 +8,7 @@
 import UIKit
 import HMedia
 import Observation
+import HConstants
 
 @MainActor
 final class ViewController: UIViewController {
@@ -15,13 +16,13 @@ final class ViewController: UIViewController {
     private let tableView = UITableView()
     private let miniPlayerView = UIView()
     private let titleLabel = UILabel()
-    private let playPauseButton = UIButton(type: .system)
     private let progressView = UIProgressView(progressViewStyle: .default)
-    
+    private let playPauseButton = UIButton(type: .system)
     private let player = AudioPlayerModel.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        HLog.info("ViewController loaded", category: .ui)
         setupUI()
         setupTableView()
         setupMiniPlayer()
@@ -82,6 +83,9 @@ final class ViewController: UIViewController {
         playPauseButton.addTarget(self, action: #selector(togglePlayPause), for: .touchUpInside)
         
         titleLabel.font = .systemFont(ofSize: 16, weight: .medium)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(showPlayerControl))
+        miniPlayerView.addGestureRecognizer(tapGesture)
     }
     
     private func setupTableView() {
@@ -91,23 +95,41 @@ final class ViewController: UIViewController {
     }
     
     private func setupMiniPlayer() {
-        updateMiniPlayer()
+        updateChapterState()
+        updatePlaybackState()
     }
     
     private func setupObservation() {
+        setupChapterObservation()
+        setupPlaybackObservation()
+    }
+    
+    private func setupChapterObservation() {
         let updater = Updater(controller: self)
         withObservationTracking {
             _ = player.currentChapter
-            _ = player.isPlaying
-            _ = player.currentTime
-            _ = player.duration
-            
             Task { @MainActor in
-                self.updateMiniPlayer()
+                self.updateChapterState()
             }
         } onChange: {
             Task { @MainActor in
-                updater.update()
+                updater.updateChapter()
+            }
+        }
+    }
+    
+    private func setupPlaybackObservation() {
+        let updater = Updater(controller: self)
+        withObservationTracking {
+            _ = player.isPlaying
+            _ = player.currentTime
+            _ = player.duration
+            Task { @MainActor in
+                self.updatePlaybackState()
+            }
+        } onChange: {
+            Task { @MainActor in
+                updater.updatePlayback()
             }
         }
     }
@@ -116,12 +138,17 @@ final class ViewController: UIViewController {
         weak var controller: ViewController?
         
         @MainActor
-        func update() {
-            controller?.setupObservation()
+        func updateChapter() {
+            controller?.setupChapterObservation()
+        }
+        
+        @MainActor
+        func updatePlayback() {
+            controller?.setupPlaybackObservation()
         }
     }
     
-    private func updateMiniPlayer() {
+    private func updateChapterState() {
         if let chapter = player.currentChapter {
             titleLabel.text = chapter.title
             miniPlayerView.isHidden = false
@@ -129,7 +156,10 @@ final class ViewController: UIViewController {
             titleLabel.text = "Not Playing"
             miniPlayerView.isHidden = true
         }
-        
+        tableView.reloadData()
+    }
+    
+    private func updatePlaybackState() {
         let iconName = player.isPlaying ? "pause.fill" : "play.fill"
         playPauseButton.setImage(UIImage(systemName: iconName), for: .normal)
         
@@ -141,7 +171,19 @@ final class ViewController: UIViewController {
     }
     
     @objc private func togglePlayPause() {
+        HLog.info("Toggle play/pause tapped", category: .ui)
         player.togglePlayPause()
+    }
+    
+    @objc private func showPlayerControl() {
+        HLog.info("Show player control tapped", category: .ui)
+        let playerControlVC = PlayerControlViewController()
+        let nav = UINavigationController(rootViewController: playerControlVC)
+        if let sheet = nav.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(nav, animated: true)
     }
 }
 
@@ -154,12 +196,21 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         let chapter = Chapter.all[indexPath.row]
         cell.textLabel?.text = chapter.title
+        
+        if chapter.title == player.currentChapter?.title {
+            cell.accessoryType = .checkmark
+            cell.textLabel?.textColor = .systemBlue
+        } else {
+            cell.accessoryType = .none
+            cell.textLabel?.textColor = .label
+        }
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let chapter = Chapter.all[indexPath.row]
+        HLog.info("Selected chapter: \(chapter.title)", category: .ui)
         player.play(chapter: chapter)
     }
 }

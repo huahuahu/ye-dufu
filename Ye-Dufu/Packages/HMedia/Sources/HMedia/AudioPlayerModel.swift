@@ -15,6 +15,11 @@ public class AudioPlayerModel {
     public var isPlaying: Bool = false
     public var currentTime: TimeInterval = 0
     public var duration: TimeInterval = 0
+    public var volume: Float = 1.0 {
+        didSet {
+            player?.volume = volume
+        }
+    }
 
     private var player: AVPlayer?
     private var timeObserver: Any?
@@ -36,11 +41,13 @@ public class AudioPlayerModel {
 
     @MainActor
     public func play(chapter: Chapter, autoPlay: Bool = true) {
+        HLog.info("Request to play chapter: \(chapter.title)", category: .media)
         // If it's the same chapter and we are paused, just resume
         if currentChapter?.title == chapter.title, let player = player {
             if autoPlay {
                 player.play()
                 isPlaying = true
+                HLog.info("Resuming playback", category: .media)
             }
             return
         }
@@ -52,8 +59,10 @@ public class AudioPlayerModel {
         let url: URL
         if let localURL = CacheManager.shared.getLocalURL(for: chapter.audioResource) {
             url = localURL
+            HLog.info("Playing from local cache", category: .media)
         } else {
             url = chapter.audioResource.url
+            HLog.info("Playing from remote URL", category: .media)
             // Trigger background caching
             Task {
                 CacheManager.shared.cache(resource: chapter.audioResource)
@@ -69,6 +78,7 @@ public class AudioPlayerModel {
         }
 
         player = AVPlayer(playerItem: playerItem)
+        player?.volume = volume
         if autoPlay {
             player?.play()
             isPlaying = true
@@ -103,8 +113,10 @@ public class AudioPlayerModel {
         if isPlaying {
             player.pause()
             saveState()
+            HLog.info("Paused playback", category: .media)
         } else {
             player.play()
+            HLog.info("Resumed playback", category: .media)
         }
         isPlaying.toggle()
         updateNowPlayingInfo()
@@ -112,6 +124,7 @@ public class AudioPlayerModel {
 
     public func seek(to time: TimeInterval) {
         guard let player = player else { return }
+        HLog.info("Seeking to \(time)", category: .media)
         let cmTime = CMTime(seconds: time, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
         player.seek(to: cmTime) { [weak self] _ in
             Task { @MainActor [weak self] in
@@ -126,8 +139,9 @@ public class AudioPlayerModel {
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
+            HLog.info("Audio session setup successful", category: .media)
         } catch {
-            print("Failed to set up audio session: \(error)")
+            HLog.error("Failed to set up audio session: \(error)", category: .media)
         }
         #endif
     }

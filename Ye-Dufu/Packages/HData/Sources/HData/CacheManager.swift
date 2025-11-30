@@ -1,4 +1,5 @@
 import Foundation
+import HConstants
 
 public class CacheManager {
     @MainActor public static let shared = CacheManager()
@@ -15,7 +16,12 @@ public class CacheManager {
     
     private func createCacheDirectory() {
         if !fileManager.fileExists(atPath: cacheDirectory.path) {
-            try? fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true, attributes: nil)
+            do {
+                try fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true, attributes: nil)
+                HLog.info("Created cache directory at \(cacheDirectory.path)", category: .data)
+            } catch {
+                HLog.error("Failed to create cache directory: \(error)", category: .data)
+            }
         }
     }
     
@@ -24,8 +30,10 @@ public class CacheManager {
         let localURL = cacheDirectory.appendingPathComponent(fileName)
         
         if fileManager.fileExists(atPath: localURL.path) {
+            HLog.debug("Cache hit for \(fileName)", category: .data)
             return localURL
         }
+        HLog.debug("Cache miss for \(fileName)", category: .data)
         return nil
     }
 
@@ -41,9 +49,10 @@ public class CacheManager {
             return
         }
         
+        HLog.info("Starting download for \(fileName)", category: .network)
         let task = URLSession.shared.downloadTask(with: remoteURL) { [weak self] tempURL, response, error in
             guard let self = self, let tempURL = tempURL, error == nil else {
-                print("Download failed: \(String(describing: error))")
+                HLog.error("Download failed: \(String(describing: error))", category: .network)
                 return
             }
             
@@ -57,9 +66,9 @@ public class CacheManager {
                 }
                 
                 try self.fileManager.moveItem(at: tempURL, to: localURL)
-                print("Cached file at: \(localURL.path)")
+                HLog.info("Cached file at: \(localURL.path)", category: .data)
             } catch {
-                print("Failed to move file: \(error)")
+                HLog.error("Failed to move file: \(error)", category: .data)
             }
         }
         task.resume()
