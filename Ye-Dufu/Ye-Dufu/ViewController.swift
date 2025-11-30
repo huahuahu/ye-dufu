@@ -32,6 +32,9 @@ final class ViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = .systemBackground
         
+        title = HConstants.appTitle
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "arrow.down.circle"), style: .plain, target: self, action: #selector(showDownloads))
+        
         // Add subviews
         view.addSubview(tableView)
         view.addSubview(miniPlayerView)
@@ -173,6 +176,13 @@ final class ViewController: UIViewController {
     @objc private func togglePlayPause() {
         HLog.info("Toggle play/pause tapped", category: .ui)
         player.togglePlayPause()
+    }
+    
+    @objc private func showDownloads() {
+        HLog.info("Show downloads tapped", category: .ui)
+        let downloadManagerVC = DownloadManagerViewController()
+        let nav = UINavigationController(rootViewController: downloadManagerVC)
+        present(nav, animated: true)
     }
     
     @objc private func showPlayerControl() {
