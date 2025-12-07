@@ -23,6 +23,7 @@ public class AudioPlayerModel {
 
     private var player: AVPlayer?
     private var timeObserver: Any?
+    private let skipInterval: TimeInterval = 15
     
     private let lastPlayedChapterTitleKey = "LastPlayedChapterTitle"
     private let lastPlayedTimeKey = "LastPlayedTime"
@@ -162,6 +163,43 @@ public class AudioPlayerModel {
             }
             return .success
         }
+
+        // Enable skip forward/backward commands
+        commandCenter.skipForwardCommand.isEnabled = true
+        commandCenter.skipBackwardCommand.isEnabled = true
+        commandCenter.skipForwardCommand.preferredIntervals = [NSNumber(value: skipInterval)]
+        commandCenter.skipBackwardCommand.preferredIntervals = [NSNumber(value: skipInterval)]
+
+        commandCenter.skipForwardCommand.addTarget { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
+                let newTime = min(self.currentTime + self.skipInterval, self.duration)
+                self.seek(to: newTime)
+                HLog.info("Skip forward \(self.skipInterval)s", category: .media)
+            }
+            return .success
+        }
+
+        commandCenter.skipBackwardCommand.addTarget { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
+                let newTime = max(self.currentTime - self.skipInterval, 0)
+                self.seek(to: newTime)
+                HLog.info("Skip backward \(self.skipInterval)s", category: .media)
+            }
+            return .success
+        }
+
+        // Allow scrubbing to a specific position (e.g., Control Center slider)
+        commandCenter.changePlaybackPositionCommand.isEnabled = true
+        commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event in
+            guard let posEvent = event as? MPChangePlaybackPositionCommandEvent else { return .commandFailed }
+            Task { @MainActor [weak self] in
+                self?.seek(to: posEvent.positionTime)
+                HLog.info("Changed playback position to \(posEvent.positionTime)", category: .media)
+            }
+            return .success
+        }
     }
 
     private func updateNowPlayingInfo() {
@@ -172,9 +210,29 @@ public class AudioPlayerModel {
 
         var nowPlayingInfo = [String: Any]()
         nowPlayingInfo[MPMediaItemPropertyTitle] = chapter.title
+        // Optional descriptive metadata to improve lock-screen and Control Center display
+        // if let author = chapter.author {
+        //     nowPlayingInfo[MPMediaItemPropertyArtist] = author
+        // }
+        // if let album = chapter.collectionTitle {
+        //     nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = album
+        // }
         nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
         nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
         nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
+
+        // Hint preferred skip interval to clients that support it
+        nowPlayingInfo[MPNowPlayingInfoPropertyChapterCount] = 0
+        nowPlayingInfo[MPNowPlayingInfoPropertyDefaultPlaybackRate] = 1.0
+
+        // Provide artwork if available to show a media card on lock screen
+        // if let artworkImage = chapter.artworkImage {
+        //     let artwork = MPMediaItemArtwork(boundsSize: artworkImage.size) { _ in artworkImage }
+        //     nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
+        // }
+
+        // Media type helps certain UIs decide rendering style
+        nowPlayingInfo[MPNowPlayingInfoPropertyMediaType] = MPNowPlayingInfoMediaType.audio.rawValue
 
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
