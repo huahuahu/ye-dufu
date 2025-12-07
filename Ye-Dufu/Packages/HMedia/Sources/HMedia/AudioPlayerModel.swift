@@ -30,7 +30,6 @@ public class AudioPlayerModel {
 
     private init() {
         setupRemoteCommands()
-        setupAudioSession()
         restoreState()
         
         NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { [weak self] _ in
@@ -46,6 +45,7 @@ public class AudioPlayerModel {
         // If it's the same chapter and we are paused, just resume
         if currentChapter?.title == chapter.title, let player = player {
             if autoPlay {
+                activateAudioSession()
                 player.play()
                 isPlaying = true
                 HLog.info("Resuming playback", category: .media)
@@ -81,6 +81,7 @@ public class AudioPlayerModel {
         player = AVPlayer(playerItem: playerItem)
         player?.volume = volume
         if autoPlay {
+            activateAudioSession()
             player?.play()
             isPlaying = true
         } else {
@@ -113,9 +114,11 @@ public class AudioPlayerModel {
         
         if isPlaying {
             player.pause()
+            deactivateAudioSession()
             saveState()
             HLog.info("Paused playback", category: .media)
         } else {
+            activateAudioSession()
             player.play()
             HLog.info("Resumed playback", category: .media)
         }
@@ -135,14 +138,25 @@ public class AudioPlayerModel {
         }
     }
 
-    private func setupAudioSession() {
+    private func activateAudioSession() {
         #if os(iOS)
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
-            HLog.info("Audio session setup successful", category: .media)
+            HLog.info("Audio session activated", category: .media)
         } catch {
-            HLog.error("Failed to set up audio session: \(error)", category: .media)
+            HLog.error("Failed to activate audio session: \(error)", category: .media)
+        }
+        #endif
+    }
+    
+    private func deactivateAudioSession() {
+        #if os(iOS)
+        do {
+            try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+            HLog.info("Audio session deactivated", category: .media)
+        } catch {
+            HLog.error("Failed to deactivate audio session: \(error)", category: .media)
         }
         #endif
     }
