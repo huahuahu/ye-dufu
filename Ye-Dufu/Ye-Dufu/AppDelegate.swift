@@ -8,6 +8,7 @@
 import UIKit
 import AVFoundation
 import HConstants
+import HData
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -28,6 +29,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         return true
+    }
+    
+    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {
+        HLog.info("Handling events for background URL session: \(identifier)", category: .network)
+        CacheManager.shared.setBackgroundCompletionHandler(completionHandler)
     }
 
     // MARK: UISceneSession Lifecycle
