@@ -66,11 +66,51 @@ class PlayerControlViewController: UIViewController {
         let config = UIImage.SymbolConfiguration(pointSize: 32)
         playPauseButton.setImage(UIImage(systemName: "play.fill", withConfiguration: config), for: .normal)
         playPauseButton.addTarget(self, action: #selector(togglePlayPause), for: .touchUpInside)
+        // Ensure a consistent accent color across controls
+        let accentColor = playPauseButton.tintColor
+        playPauseButton.tintColor = accentColor
         
-        seekBackButton.setImage(UIImage(systemName: "gobackward.15", withConfiguration: config), for: .normal)
+        // Use separate arrow image and an overlaid label so text won't rotate
+        var backConfig = UIButton.Configuration.plain()
+        backConfig.image = UIImage(systemName: "gobackward", withConfiguration: config)
+        backConfig.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8)
+        backConfig.baseForegroundColor = accentColor
+        seekBackButton.configuration = backConfig
+        seekBackButton.tintColor = accentColor
+        let backLabel = UILabel()
+        backLabel.text = "15"
+        backLabel.font = .systemFont(ofSize: 14, weight: .regular)
+        backLabel.textColor = accentColor
+        backLabel.translatesAutoresizingMaskIntoConstraints = false
+        backLabel.isUserInteractionEnabled = false
+        seekBackButton.addSubview(backLabel)
+        if let imageView = seekBackButton.imageView {
+            NSLayoutConstraint.activate([
+                backLabel.centerXAnchor.constraint(equalTo: imageView.centerXAnchor),
+                backLabel.centerYAnchor.constraint(equalTo: imageView.centerYAnchor)
+            ])
+        }
         seekBackButton.addTarget(self, action: #selector(seekBack), for: .touchUpInside)
         
-        seekForwardButton.setImage(UIImage(systemName: "goforward.15", withConfiguration: config), for: .normal)
+        var forwardConfig = UIButton.Configuration.plain()
+        forwardConfig.image = UIImage(systemName: "goforward", withConfiguration: config)
+        forwardConfig.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8)
+        forwardConfig.baseForegroundColor = accentColor
+        seekForwardButton.configuration = forwardConfig
+        seekForwardButton.tintColor = accentColor
+        let forwardLabel = UILabel()
+        forwardLabel.text = "15"
+        forwardLabel.font = .systemFont(ofSize: 14, weight: .regular)
+        forwardLabel.textColor = accentColor
+        forwardLabel.translatesAutoresizingMaskIntoConstraints = false
+        forwardLabel.isUserInteractionEnabled = false
+        seekForwardButton.addSubview(forwardLabel)
+        if let imageView = seekForwardButton.imageView {
+            NSLayoutConstraint.activate([
+                forwardLabel.centerXAnchor.constraint(equalTo: imageView.centerXAnchor),
+                forwardLabel.centerYAnchor.constraint(equalTo: imageView.centerYAnchor)
+            ])
+        }
         seekForwardButton.addTarget(self, action: #selector(seekForward), for: .touchUpInside)
         
         // Stack Views
@@ -168,15 +208,15 @@ class PlayerControlViewController: UIViewController {
         HLog.info("Seek back tapped", category: .ui)
         
         // Prevent multiple rapid taps during animation
-        seekBackButton.isEnabled = false
+//        seekBackButton.isEnabled = false
         
-        // Add rotation animation
-        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut], animations: {
-            self.seekBackButton.transform = CGAffineTransform(rotationAngle: -.pi * 2)
-        }) { _ in
-            self.seekBackButton.transform = .identity
-            self.seekBackButton.isEnabled = true
-        }
+        // Add rotation animation (360° identity transform won't interpolate; use layer animation)
+        let rotation = CABasicAnimation(keyPath: "transform.rotation")
+        rotation.fromValue = 0
+        rotation.toValue = -CGFloat.pi * 2
+        rotation.duration = 0.3
+        rotation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        self.seekBackButton.imageView?.layer.add(rotation, forKey: "rotateBackward")
         
         let newTime = max(0, player.currentTime - 15)
         player.seek(to: newTime)
@@ -188,13 +228,15 @@ class PlayerControlViewController: UIViewController {
         // Prevent multiple rapid taps during animation
         seekForwardButton.isEnabled = false
         
-        // Add rotation animation
-        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut], animations: {
-            self.seekForwardButton.transform = CGAffineTransform(rotationAngle: .pi * 2)
-        }) { _ in
-            self.seekForwardButton.transform = .identity
-            self.seekForwardButton.isEnabled = true
-        }
+        // Add rotation animation (use layer animation for visible interpolation)
+        let rotation = CABasicAnimation(keyPath: "transform.rotation")
+        rotation.fromValue = 0
+        rotation.toValue = CGFloat.pi * 2
+        rotation.duration = 0.3
+        rotation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        rotation.fillMode = .removed
+        self.seekForwardButton.imageView?.layer.add(rotation, forKey: "rotateForward")
+        self.seekForwardButton.isEnabled = true
         
         let newTime = min(player.duration, player.currentTime + 15)
         player.seek(to: newTime)
