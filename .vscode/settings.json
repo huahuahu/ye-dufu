@@ -92,6 +92,8 @@
         "xargs": false,
         "eval": false,
         "Invoke-Expression": false,
-        "iex": false
+        "iex": false,
+        "/^set -euo\\b/": true,
+        "git rev-parse --abbrev-ref HEAD": true,
     }
 }
