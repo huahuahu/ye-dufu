@@ -19,13 +19,16 @@ final public class  CacheManager: NSObject, URLSessionDownloadDelegate {
     private let fileManager = FileManager.default
     private let cacheDirectory: URL
     private var session: URLSession!
+    private var backgroundCompletionHandler: (() -> Void)?
     
     private override init() {
         let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
         cacheDirectory = documentsDirectory.appendingPathComponent("Media")
         super.init()
         
-        let config = URLSessionConfiguration.default
+        let config = URLSessionConfiguration.background(withIdentifier: "com.yedufu.background.download")
+        config.isDiscretionary = false
+        config.sessionSendsLaunchEvents = true
         self.session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
         
         createCacheDirectory()
@@ -112,6 +115,10 @@ final public class  CacheManager: NSObject, URLSessionDownloadDelegate {
         cache(remoteURL: resource.url)
     }
     
+    public func setBackgroundCompletionHandler(_ handler: @escaping () -> Void) {
+        self.backgroundCompletionHandler = handler
+    }
+    
     public func removeCache(for resource: AudioResource) {
         let fileName = resource.url.lastPathComponent
         let localURL = cacheDirectory.appendingPathComponent(fileName)
@@ -176,6 +183,17 @@ final public class  CacheManager: NSObject, URLSessionDownloadDelegate {
             Task { @MainActor in
                 self.downloadingURLs.remove(url)
                 self.downloadStates.removeValue(forKey: url)
+            }
+        }
+    }
+    
+    public nonisolated func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+        HLog.info("Background download session finished all events", category: .network)
+        Task { @MainActor in
+            if let handler = self.backgroundCompletionHandler {
+                self.backgroundCompletionHandler = nil
+                handler()
+                HLog.info("Background completion handler called", category: .network)
             }
         }
     }
