@@ -166,12 +166,28 @@ class PlayerControlViewController: UIViewController {
     
     @objc private func seekBack() {
         HLog.info("Seek back tapped", category: .ui)
+        
+        // Add rotation animation
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut], animations: {
+            self.seekBackButton.transform = CGAffineTransform(rotationAngle: -.pi * 2)
+        }) { _ in
+            self.seekBackButton.transform = .identity
+        }
+        
         let newTime = max(0, player.currentTime - 15)
         player.seek(to: newTime)
     }
     
     @objc private func seekForward() {
         HLog.info("Seek forward tapped", category: .ui)
+        
+        // Add rotation animation
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut], animations: {
+            self.seekForwardButton.transform = CGAffineTransform(rotationAngle: .pi * 2)
+        }) { _ in
+            self.seekForwardButton.transform = .identity
+        }
+        
         let newTime = min(player.duration, player.currentTime + 15)
         player.seek(to: newTime)
     }
