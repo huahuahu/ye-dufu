@@ -19,6 +19,18 @@
                 "panel": "new"
             },
             "problemMatcher": []
+        },
+        {
+            "type": "sweetpad",
+            "action": "debugging-launch",
+            "problemMatcher": [
+                "$sweetpad-watch",
+                "$sweetpad-xcodebuild-default",
+                "$sweetpad-xcbeautify-errors",
+                "$sweetpad-xcbeautify-warnings"
+            ],
+            "label": "sweetpad: debugging-launch",
+            "detail": "Build and Launch the app (for debugging)"
         }
     ]
 }
