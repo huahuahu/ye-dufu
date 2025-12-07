@@ -18,15 +18,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         HLog.info("Application did finish launching", category: .general)
-        
-        do {
-            let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(.playback, mode: .default)
-            try audioSession.setActive(true)
-            HLog.info("Audio session set up successfully", category: .media)
-        } catch {
-            HLog.error("Failed to set up audio session: \(error)", category: .media)
-        }
 
         return true
     }
