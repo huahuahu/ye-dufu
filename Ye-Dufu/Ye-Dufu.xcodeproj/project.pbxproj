@@ -339,6 +339,8 @@
 		};
 		60585DCF2ED962BA00A3A4D1 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 60585DA62ED962B900A3A4D1 /* Ye-Dufu */;
+			baseConfigurationReferenceRelativePath = Configs/App.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -371,6 +373,8 @@
 		};
 		60585DD02ED962BA00A3A4D1 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 60585DA62ED962B900A3A4D1 /* Ye-Dufu */;
+			baseConfigurationReferenceRelativePath = Configs/App.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
