@@ -1,5 +1,5 @@
 ---
-agent: agent
+agent: github
 tools: ['execute/getTerminalOutput', 'execute/runInTerminal', 'github/create_pull_request']
 ---
 1. **Branch Management**:
