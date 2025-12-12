@@ -164,6 +164,15 @@ public class AudioPlayerModel {
     private func setupRemoteCommands() {
         let commandCenter = MPRemoteCommandCenter.shared()
 
+        commandCenter.togglePlayPauseCommand.isEnabled = true
+        commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
+            Task { @MainActor [weak self] in
+                HLog.info("Remote toggle play/pause command received", category: .media)
+                self?.togglePlayPause()
+            }
+            return .success
+        }
+
         commandCenter.playCommand.isEnabled = true
         commandCenter.playCommand.addTarget { [weak self] _ in
             Task { @MainActor [weak self] in
