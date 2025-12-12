@@ -164,16 +164,20 @@ public class AudioPlayerModel {
     private func setupRemoteCommands() {
         let commandCenter = MPRemoteCommandCenter.shared()
 
+        commandCenter.playCommand.isEnabled = true
         commandCenter.playCommand.addTarget { [weak self] _ in
             Task { @MainActor [weak self] in
-                self?.togglePlayPause()
+                guard let self = self, !self.isPlaying else { return }
+                self.togglePlayPause()
             }
             return .success
         }
 
+        commandCenter.pauseCommand.isEnabled = true
         commandCenter.pauseCommand.addTarget { [weak self] _ in
             Task { @MainActor [weak self] in
-                self?.togglePlayPause()
+                guard let self = self, self.isPlaying else { return }
+                self.togglePlayPause()
             }
             return .success
         }
