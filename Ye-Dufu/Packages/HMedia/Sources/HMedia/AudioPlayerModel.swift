@@ -167,7 +167,11 @@ public class AudioPlayerModel {
         commandCenter.playCommand.isEnabled = true
         commandCenter.playCommand.addTarget { [weak self] _ in
             Task { @MainActor [weak self] in
-                guard let self = self, !self.isPlaying else { return }
+                guard let self = self, !self.isPlaying else {
+                    HLog.info("Ignoring remote play command (already playing)", category: .media)
+                    return
+                }
+                HLog.info("Remote play command received", category: .media)
                 self.togglePlayPause()
             }
             return .success
@@ -176,7 +180,11 @@ public class AudioPlayerModel {
         commandCenter.pauseCommand.isEnabled = true
         commandCenter.pauseCommand.addTarget { [weak self] _ in
             Task { @MainActor [weak self] in
-                guard let self = self, self.isPlaying else { return }
+                guard let self = self, self.isPlaying else {
+                    HLog.info("Ignoring remote pause command (already paused)", category: .media)
+                    return
+                }
+                HLog.info("Remote pause command received", category: .media)
                 self.togglePlayPause()
             }
             return .success
